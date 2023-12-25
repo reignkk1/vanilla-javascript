@@ -15,15 +15,15 @@ document.addEventListener("keydown", keyDown);
 // Functions
 buildGrid();
 
-const wordList = ["piano", "patio", "horse", "darts"].map((word) =>
-  word.toUpperCase()
-);
+const wordList = ["piano", "patio", "horse", "darts"];
 const randomIndex = Math.floor(Math.random() * wordList.length);
 const choiceWord = wordList[randomIndex];
 
-const pressedAlphabets = [];
+const pressedWords = ["darts"];
+
 let currentPressedAlphabet = "";
-let lock = 0;
+let keyPressLock = 0;
+let backSpaceLock = 0;
 
 function buildGrid() {
   for (let i = 0; i < 6; i++) {
@@ -37,18 +37,35 @@ function buildGrid() {
     grid.appendChild(row);
   }
 }
+updateGrid();
 
-// 1,2,3,4,5 => i < 1 => i = 0
-// j = 0,1,2,3,4
-// 6,7,8,9,10 => i < 2 => i = 1
-// j = 5,6,7,8,9
 function updateGrid() {
-  for (let i = 0; i < Math.ceil(pressedAlphabets.length || 1 / 5); i++) {
-    const row = grid.children[i];
-    for (let j = 0; j < 5; j++) {
-      const box = row.children[j];
-      box.innerText = pressedAlphabets[j + i * 5] || null;
-    }
+  let row = grid.firstChild;
+  for (const pressedWord of pressedWords) {
+    drawRowAlphabet(row, pressedWord);
+    row = row.nextSibling;
+  }
+}
+
+function drawRowAlphabet(row, pressedWord) {
+  for (let i = 0; i < 5; i++) {
+    const box = row.children[i];
+    box.innerText = pressedWord[i].toUpperCase() ?? "";
+    box.style.backgroundColor = getBackGroundColor(pressedWord, i);
+  }
+}
+
+function getBackGroundColor(pressedWord, i) {
+  const choiceWordLetter = choiceWord[i];
+  const pressedWordLetter = pressedWord[i];
+
+  console.log(choiceWord, pressedWord[i]);
+  if (choiceWordLetter === pressedWordLetter) {
+    return "#538f4e";
+  } else if (choiceWord.includes(pressedWord[i])) {
+    return "#b59f3b";
+  } else {
+    return "#939598";
   }
 }
 
@@ -60,12 +77,17 @@ function keyDown(e) {
 
   // 백 스페이스 누르면 글자가 지워진다.
   if (isKeyDownBackSpace) {
-    lock = 0;
+    // 백 스페이스 값이 0이면 lock걸림
+    if (backSpaceLock === 0) return;
+    // 백 스페이스 --
+    backSpaceLock--;
+    keyPressLock = 0;
     pressedAlphabets.pop();
     updateGrid();
   } else if (pressedAlphabets.length % 5 === 0 && isKeyDownEnter) {
     // 엔터를 누르면 lock이 풀려서 다음 칸으로 타자를 칠 수 있다.
-    lock = 0;
+    backSpaceLock = 0;
+    keyPressLock = 0;
     for (let i = 0; i < Math.ceil(pressedAlphabets.length || 1 / 5); i++) {
       const row = grid.children[i];
       for (let j = 0; j < 5; j++) {
@@ -77,7 +99,7 @@ function keyDown(e) {
 
         // 글자가 포함되고 위치까지 같으면 녹색
         // 글자가 포함되고 위치가 다르면 노란색
-        // 지운 횟수가 5회 됬을 때 백스페이스 잠금
+
         if (isIncludedPositionSame) {
           box.style.backgroundColor = "green";
         } else if (isIncludes) {
@@ -88,14 +110,16 @@ function keyDown(e) {
   }
 
   // lock 걸리면 글자 입력 못함.
-  if (lock) return;
+  if (keyPressLock) return;
 
   // 백 스페이스, 엔터키 제외한 key들은 입력된다.
   if (regex.test(keyDownAlphabet) && !isKeyDownBackSpace && !isKeyDownEnter) {
+    // 백 스페이스 lock ++
+    backSpaceLock++;
     pressedAlphabets.push(keyDownAlphabet);
     // 한줄이 다 입력되면 lock 걸려서 입력이 안된다.
     if (pressedAlphabets.length % 5 === 0) {
-      lock = 1;
+      keyPressLock = 1;
     }
     updateGrid();
   }
