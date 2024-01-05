@@ -8,19 +8,44 @@
 
 // Selectors
 const grid = document.getElementById("grid");
+const keyboard = document.getElementById("keyboard");
 
 // EventListners
 document.addEventListener("keydown", keyDown);
 
 // Functions
-buildGrid();
-
 const wordList = ["piano", "patio", "horse", "darts"];
 const randomIndex = Math.floor(Math.random() * wordList.length);
 const choiceWord = wordList[randomIndex];
-
 const pressedWords = ["apple", "piasd", "piano"];
+
 let currentPressedWord = "";
+
+buildGrid();
+updateGrid();
+buildKeyBoard();
+
+function buildKeyBoard() {
+  drawKeyBoardRow("qwertyuiop");
+  drawKeyBoardRow("asdfghjkl");
+  drawKeyBoardRow("zxcvbnm");
+}
+
+function drawKeyBoardRow(letters) {
+  const row = document.createElement("div");
+  row.className = "keyboard-row";
+  for (const letter of letters) {
+    const button = document.createElement("button");
+    button.innerText = letter;
+    button.className = "keyboard-button";
+    button.onclick = () => {
+      currentPressedWord += letter;
+      updateGrid();
+    };
+    row.appendChild(button);
+  }
+  keyboard.appendChild(row);
+}
 
 function buildGrid() {
   for (let i = 0; i < 6; i++) {
@@ -34,7 +59,6 @@ function buildGrid() {
     grid.appendChild(row);
   }
 }
-updateGrid();
 
 function updateGrid() {
   let row = grid.firstChild;
@@ -58,7 +82,6 @@ function drawRowWord(row, pressedWord) {
 }
 
 function drawRowLetter(row, currentPressedWord) {
-  console.log(currentPressedWord.length);
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
     if (currentPressedWord) {
@@ -87,16 +110,11 @@ function keyDown(e) {
   const pressedKey = e.key.toLowerCase();
   if (pressedKey === "enter") {
     if (currentPressedWord.length < 5) return;
-    if (!wordList.includes(currentPressedWord)) {
-      return alert("이 단어는 없는 단어입니다!");
-    } else {
-      pressedWords.push(currentPressedWord);
-      currentPressedWord = "";
-    }
+    pressedWords.push(currentPressedWord);
+    currentPressedWord = "";
   } else if (pressedKey === "backspace") {
     currentPressedWord = currentPressedWord.slice(0, -1);
-    console.log(currentPressedWord);
-  } else if (/[a-z]/.test(pressedKey)) {
+  } else if (/^[a-z]$/.test(pressedKey)) {
     if (currentPressedWord.length === 5) return;
     currentPressedWord += pressedKey;
   }

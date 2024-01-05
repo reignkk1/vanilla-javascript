@@ -13,6 +13,26 @@ html {
   justify-content: center;
 }
 
+#keyboard {
+  padding: 0px 10px;
+  margin-top: 100px;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+}
+.keyboard-button {
+  width: 50px;
+  height: 60px;
+  cursor: pointer;
+  margin: 4px;
+  border-radius: 5px;
+  background-color: #818384;
+  border: none;
+  text-transform: uppercase;
+}
+
 .box {
   display: flex;
   justify-content: center;
