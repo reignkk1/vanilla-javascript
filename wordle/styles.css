@@ -14,16 +14,18 @@ html {
 }
 
 #keyboard {
+  width: 484px;
   padding: 0px 10px;
+  margin: 0 auto;
   margin-top: 100px;
 }
 
 .keyboard-row {
   display: flex;
-  justify-content: center;
 }
 .keyboard-button {
-  width: 50px;
+  flex: 1;
+  padding: 12px;
   height: 60px;
   cursor: pointer;
   margin: 4px;
@@ -31,6 +33,9 @@ html {
   background-color: #818384;
   border: none;
   text-transform: uppercase;
+  font-weight: bold;
+  color: white;
+  font-size: 20px;
 }
 
 .box {
@@ -45,4 +50,13 @@ html {
   font-size: 3rem;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+.toggle {
+  background-color: red;
+}
+
+.spaceButton {
+  opacity: 0;
+  flex: 0.5;
 }

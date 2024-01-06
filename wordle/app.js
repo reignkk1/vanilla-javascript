@@ -25,28 +25,43 @@ buildGrid();
 updateGrid();
 buildKeyBoard();
 
+// 키보드 빌드
 function buildKeyBoard() {
   drawKeyBoardRow("qwertyuiop");
-  drawKeyBoardRow("asdfghjkl");
-  drawKeyBoardRow("zxcvbnm");
+  drawKeyBoardRow(" asdfghjkl ");
+  drawKeyBoardRow("zxcvbnm", true);
 }
 
-function drawKeyBoardRow(letters) {
+// 키보드 열 그리기
+function drawKeyBoardRow(letters, isLastRow = false) {
   const row = document.createElement("div");
   row.className = "keyboard-row";
+  if (isLastRow) row.appendChild(createKeyBoardButton("enter"));
   for (const letter of letters) {
-    const button = document.createElement("button");
-    button.innerText = letter;
-    button.className = "keyboard-button";
-    button.onclick = () => {
-      currentPressedWord += letter;
-      updateGrid();
-    };
-    row.appendChild(button);
+    row.appendChild(createKeyBoardButton(letter));
   }
+  if (isLastRow) row.appendChild(createKeyBoardButton("◀"));
   keyboard.appendChild(row);
 }
 
+// 키보드 버튼 생성
+function createKeyBoardButton(letter) {
+  const button = document.createElement("button");
+  button.innerText = letter;
+  if (letter === " ") {
+    button.className = "spaceButton";
+  } else {
+    button.className = "keyboard-button";
+    button.onclick = () => {
+      if (currentPressedWord.length === 5) return;
+      currentPressedWord += letter;
+      updateGrid();
+    };
+  }
+  return button;
+}
+
+// 박스 빌드
 function buildGrid() {
   for (let i = 0; i < 6; i++) {
     const row = document.createElement("div");
@@ -60,6 +75,7 @@ function buildGrid() {
   }
 }
 
+// 박스 업뎃
 function updateGrid() {
   let row = grid.firstChild;
   for (const pressedWord of pressedWords) {
@@ -69,43 +85,30 @@ function updateGrid() {
   drawRowLetter(row, currentPressedWord);
 }
 
+// 단어 그리기
 function drawRowWord(row, pressedWord) {
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
     if (pressedWord[i]) {
       box.innerText = pressedWord[i];
-    } else {
-      box.innerHTML = `<div>X</div>`;
     }
     box.style.backgroundColor = getBackGroundColor(pressedWord, i);
   }
 }
 
+// 한 글자 씩 그리기
 function drawRowLetter(row, currentPressedWord) {
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
     if (currentPressedWord) {
       box.innerText = currentPressedWord[i] || "";
     } else {
-      box.innerHTML = `<div>X</div>`;
+      box.innerText = "";
     }
   }
 }
 
-function getBackGroundColor(pressedWord, i) {
-  const choiceWordLetter = choiceWord[i];
-  const pressedWordLetter = pressedWord[i];
-
-  if (!pressedWordLetter) return;
-  if (choiceWordLetter === pressedWordLetter) {
-    return "#538f4e";
-  } else if (choiceWord.includes(pressedWord[i])) {
-    return "#b59f3b";
-  } else {
-    return "#939598";
-  }
-}
-
+// 키보드 눌렀을 때 실행되는 이벤트
 function keyDown(e) {
   const pressedKey = e.key.toLowerCase();
   if (pressedKey === "enter") {
@@ -119,4 +122,19 @@ function keyDown(e) {
     currentPressedWord += pressedKey;
   }
   updateGrid();
+}
+
+// 글자 박스 배경색 로직
+function getBackGroundColor(pressedWord, i) {
+  const choiceWordLetter = choiceWord[i];
+  const pressedWordLetter = pressedWord[i];
+
+  if (!pressedWordLetter) return;
+  if (choiceWordLetter === pressedWordLetter) {
+    return "#538f4e";
+  } else if (choiceWord.includes(pressedWord[i])) {
+    return "#b59f3b";
+  } else {
+    return "#3A3A3C";
+  }
 }
