@@ -3,29 +3,31 @@
 1. 키패드에 누른 알파벳이 보드에 표시되어야 한다.
 2. 총 5개의 알파벳을 누를 수 있다. 그리고 엔터를 눌러야 다음 밑에 칸으로 넘어감.
 3. backspace누르면 보드에 있는 알파벳이 지워진다.
-3. 엔터 누를 시 정답 단어 스펠링에 포함이 된다면 노란색, 위치까지 맞다면 초록색, 포함 안되면 검은색
+4. 엔터 누를 시 정답 단어 스펠링에 포함이 된다면 노란색, 위치까지 맞다면 초록색, 포함 안되면 검은색
+5. 실패 시 모달창 띄우며 다시하기, 성공 했을 때 폭죽!
 */
 
 // Selectors
 const grid = document.getElementById("grid");
 const keyboard = document.getElementById("keyboard");
+const modal = document.getElementById("modal");
 
 // EventListners
 document.addEventListener("keydown", handleKeyDown);
 
 // Functions
-const wordList = ["piano", "patio", "horse", "darts"];
+const wordList = ["piano"];
 const randomIndex = Math.floor(Math.random() * wordList.length);
 const choiceWord = wordList[randomIndex];
-const pressedWords = [];
 
 // 색깔
 const GREEN = "#538f4e";
 const YELLOW = "#b59f3b";
 const GREY = "#3A3A3C";
 
-let currentPressedWord = "";
 let lettersColor = new Map();
+let pressedWords = [];
+let currentPressedWord = "";
 
 buildGrid();
 updateGrid();
@@ -58,7 +60,6 @@ function createKeyBoardButton(letter) {
     button.className = "spaceButton";
   } else {
     button.className = "keyboard-button";
-    button.style.backgroundColor = lettersColor.get(letter);
     button.onclick = () => {
       if (letter === "◀") {
         letter = "backspace";
@@ -85,6 +86,14 @@ function buildGrid() {
 
 // 박스 업뎃
 function updateGrid() {
+  const boxes = document.querySelectorAll(".box");
+  if (!pressedWords.length) {
+    boxes.forEach((box) => {
+      box.style.backgroundColor = "black";
+      box.innerText = "";
+    });
+  }
+
   let row = grid.firstChild;
   for (const pressedWord of pressedWords) {
     drawRowWord(row, pressedWord);
@@ -124,19 +133,14 @@ function handleKeyDown(e) {
 
 // 키 눌렀을 때 로직
 function handleKey(pressedKey) {
+  if (pressedWords.length === 6) return;
   if (pressedKey === "enter") {
     if (currentPressedWord.length < 5) return;
     pressedWords.push(currentPressedWord);
     currentPressedWord = "";
 
-    for (const pressedWord of pressedWords) {
-      for (let i = 0; i < pressedWord.length; i++) {
-        const color = getBackGroundColor(pressedWord, i);
-        const prevColor = lettersColor.get(pressedWord[i]);
-        lettersColor.set(pressedWord[i], getBetterColor(prevColor, color));
-      }
-    }
     updateKeyBoardColor();
+    drawModal();
   } else if (pressedKey === "backspace") {
     currentPressedWord = currentPressedWord.slice(0, -1);
   } else if (/^[a-z]$/.test(pressedKey)) {
@@ -144,6 +148,65 @@ function handleKey(pressedKey) {
     currentPressedWord += pressedKey;
   }
   updateGrid();
+}
+
+// 키보드 버튼 배경색 업뎃 로직
+function updateKeyBoardColor() {
+  const buttons = document.querySelectorAll(".keyboard-button");
+  if (!pressedWords.length)
+    return buttons.forEach(
+      (button) => (button.style.backgroundColor = "#818384")
+    );
+
+  for (const pressedWord of pressedWords) {
+    for (let i = 0; i < pressedWord.length; i++) {
+      const color = getBackGroundColor(pressedWord, i);
+      const prevColor = lettersColor.get(pressedWord[i]);
+      lettersColor.set(pressedWord[i], getBetterColor(prevColor, color));
+    }
+  }
+  buttons.forEach((button) => {
+    const letter = button.innerText.toLowerCase();
+    button.style.backgroundColor = lettersColor.get(letter);
+  });
+}
+
+// 모달 창 띄우기
+function drawModal() {
+  const greenColors = [...lettersColor.values()].filter(
+    (color) => color === GREEN
+  );
+  const success = greenColors.length === 5;
+  if (success) {
+    modal.style.display = "flex";
+    createModalInner();
+  } else if (pressedWords.length === 6) {
+  }
+}
+
+// 모달 inner 생성
+function createModalInner() {
+  const container = document.createElement("div");
+  const div = document.createElement("div");
+  const h1 = document.createElement("h1");
+  const button = document.createElement("button");
+
+  container.className = "modal-inner";
+  h1.innerText = "정답! 축하드립니다!";
+  button.innerText = "다시하기";
+  button.onclick = () => {
+    modal.style.display = "none";
+    pressedWords = [];
+    lettersColor.clear();
+    updateKeyBoardColor();
+    updateGrid();
+  };
+
+  div.appendChild(h1);
+  div.appendChild(button);
+
+  container.appendChild(div);
+  modal.appendChild(container);
 }
 
 function getBetterColor(prev, cur) {
@@ -154,15 +217,6 @@ function getBetterColor(prev, cur) {
   } else if (prev === GREY || cur === GREY) {
     return GREY;
   }
-}
-
-// 키보드 버튼 배경색 업뎃 로직
-function updateKeyBoardColor() {
-  const buttons = document.querySelectorAll(".keyboard-button");
-  buttons.forEach((button) => {
-    const letter = button.innerText.toLowerCase();
-    button.style.backgroundColor = lettersColor.get(letter);
-  });
 }
 
 // 글자 박스 배경색 로직
@@ -179,3 +233,5 @@ function getBackGroundColor(pressedWord, i) {
     return GREY;
   }
 }
+
+// 실패 했을 때 모달 로직
