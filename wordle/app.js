@@ -138,7 +138,6 @@ function handleKey(pressedKey) {
     if (currentPressedWord.length < 5) return;
     pressedWords.push(currentPressedWord);
     currentPressedWord = "";
-
     updateKeyBoardColor();
     drawModal();
   } else if (pressedKey === "backspace") {
@@ -178,21 +177,22 @@ function drawModal() {
   );
   const success = greenColors.length === 5;
   if (success) {
-    modal.style.display = "flex";
-    createModalInner();
+    createModalInner("정답! 축하드립니다!");
   } else if (pressedWords.length === 6) {
+    createModalInner("실패! 다시 도전해주세요!");
   }
 }
 
 // 모달 inner 생성
-function createModalInner() {
+function createModalInner(title) {
   const container = document.createElement("div");
   const div = document.createElement("div");
   const h1 = document.createElement("h1");
   const button = document.createElement("button");
 
+  modal.style.display = "flex";
   container.className = "modal-inner";
-  h1.innerText = "정답! 축하드립니다!";
+  h1.innerText = title;
   button.innerText = "다시하기";
   button.onclick = () => {
     modal.style.display = "none";
@@ -200,6 +200,7 @@ function createModalInner() {
     lettersColor.clear();
     updateKeyBoardColor();
     updateGrid();
+    modal.removeChild(container);
   };
 
   div.appendChild(h1);
@@ -234,4 +235,9 @@ function getBackGroundColor(pressedWord, i) {
   }
 }
 
-// 실패 했을 때 모달 로직
+/*
+할일
+
+모달창 꾸미기! 성공 => 폭죽
+실패하면 => 우울
+*/
