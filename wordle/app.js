@@ -115,6 +115,7 @@ function drawRowWord(row, pressedWord) {
 
 // 한 글자 씩 그리기
 function drawRowLetter(row, currentPressedWord) {
+  if (!row) return;
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
     if (currentPressedWord) {
@@ -240,4 +241,6 @@ function getBackGroundColor(pressedWord, i) {
 
 모달창 꾸미기! 성공 => 폭죽
 실패하면 => 우울
+배포시 => 실패 모달창 안뜸!
+
 */
