@@ -16,15 +16,15 @@ const modal = document.getElementById("modal");
 document.addEventListener("keydown", handleKeyDown);
 
 // Functions
-const wordList = ["piano"];
+const wordList = ["piano", "apple"];
 const randomIndex = Math.floor(Math.random() * wordList.length);
-const choiceWord = wordList[randomIndex];
 
 // 색깔
 const GREEN = "#538f4e";
 const YELLOW = "#b59f3b";
 const GREY = "#3A3A3C";
 
+let choiceWord;
 let lettersColor = new Map();
 let pressedWords = [];
 let currentPressedWord = "";
@@ -32,6 +32,12 @@ let currentPressedWord = "";
 buildGrid();
 updateGrid();
 buildKeyBoard();
+drawRandomWord();
+
+// 단어 랜덤으로 뽑기
+function drawRandomWord() {
+  choiceWord = wordList[Math.floor(Math.random() * wordList.length)];
+}
 
 // 키보드 빌드
 function buildKeyBoard() {
@@ -173,12 +179,10 @@ function updateKeyBoardColor() {
 
 // 모달 창 띄우기
 function drawModal() {
-  const greenColors = [...lettersColor.values()].filter(
-    (color) => color === GREEN
-  );
-  const success = greenColors.length === 5;
+  const success = pressedWords[pressedWords.length - 1] === choiceWord;
   if (success) {
     createModalInner("정답! 축하드립니다!");
+    drawRandomWord();
   } else if (pressedWords.length === 6) {
     createModalInner("실패! 다시 도전해주세요!");
   }
@@ -239,8 +243,8 @@ function getBackGroundColor(pressedWord, i) {
 /*
 할일
 
-모달창 꾸미기! 성공 => 폭죽
-실패하면 => 우울
-배포시 => 실패 모달창 안뜸!
+초기화 시키는 함수 짜기
+배포
+성공/실패 모달 문구
 
 */
