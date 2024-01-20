@@ -23,6 +23,7 @@ const randomIndex = Math.floor(Math.random() * wordList.length);
 const GREEN = "#538f4e";
 const YELLOW = "#b59f3b";
 const GREY = "#3A3A3C";
+const LIGHTGREY = "#555";
 
 let choiceWord;
 let lettersColor = new Map();
@@ -33,6 +34,21 @@ buildGrid();
 updateGrid();
 buildKeyBoard();
 drawRandomWord();
+
+// 초기화
+function reset() {
+  const boxes = document.querySelectorAll(".box");
+  const buttons = document.querySelectorAll(".keyboard-button");
+
+  pressedWords = [];
+  lettersColor.clear();
+  buttons.forEach((button) => (button.style.backgroundColor = "#818384"));
+  boxes.forEach((box) => {
+    box.style.backgroundColor = "black";
+    box.innerText = "";
+    box.style.borderColor = LIGHTGREY;
+  });
+}
 
 // 단어 랜덤으로 뽑기
 function drawRandomWord() {
@@ -92,14 +108,6 @@ function buildGrid() {
 
 // 박스 업뎃
 function updateGrid() {
-  const boxes = document.querySelectorAll(".box");
-  if (!pressedWords.length) {
-    boxes.forEach((box) => {
-      box.style.backgroundColor = "black";
-      box.innerText = "";
-    });
-  }
-
   let row = grid.firstChild;
   for (const pressedWord of pressedWords) {
     drawRowWord(row, pressedWord);
@@ -116,6 +124,7 @@ function drawRowWord(row, pressedWord) {
       box.innerText = pressedWord[i];
     }
     box.style.backgroundColor = getBackGroundColor(pressedWord, i);
+    box.style.borderColor = "black";
   }
 }
 
@@ -124,10 +133,12 @@ function drawRowLetter(row, currentPressedWord) {
   if (!row) return;
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
-    if (currentPressedWord) {
+    if (currentPressedWord[i]) {
       box.innerText = currentPressedWord[i] || "";
+      box.style.borderColor = "white";
     } else {
       box.innerText = "";
+      box.style.borderColor = LIGHTGREY;
     }
   }
 }
@@ -146,7 +157,8 @@ function handleKey(pressedKey) {
     pressedWords.push(currentPressedWord);
     currentPressedWord = "";
     updateKeyBoardColor();
-    drawModal();
+    updateGrid();
+    return drawModal();
   } else if (pressedKey === "backspace") {
     currentPressedWord = currentPressedWord.slice(0, -1);
   } else if (/^[a-z]$/.test(pressedKey)) {
@@ -159,11 +171,6 @@ function handleKey(pressedKey) {
 // 키보드 버튼 배경색 업뎃 로직
 function updateKeyBoardColor() {
   const buttons = document.querySelectorAll(".keyboard-button");
-  if (!pressedWords.length)
-    return buttons.forEach(
-      (button) => (button.style.backgroundColor = "#818384")
-    );
-
   for (const pressedWord of pressedWords) {
     for (let i = 0; i < pressedWord.length; i++) {
       const color = getBackGroundColor(pressedWord, i);
@@ -201,10 +208,7 @@ function createModalInner(title) {
   button.innerText = "다시하기";
   button.onclick = () => {
     modal.style.display = "none";
-    pressedWords = [];
-    lettersColor.clear();
-    updateKeyBoardColor();
-    updateGrid();
+    reset();
     modal.removeChild(container);
   };
 
@@ -243,8 +247,7 @@ function getBackGroundColor(pressedWord, i) {
 /*
 할일
 
-초기화 시키는 함수 짜기
-배포
-성공/실패 모달 문구
+글자를 입력 할때 윤곽에 바운스 모션
+엔터를 쳤을 때 애니메이션
 
 */
