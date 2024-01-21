@@ -23,7 +23,7 @@ const randomIndex = Math.floor(Math.random() * wordList.length);
 const GREEN = "#538f4e";
 const YELLOW = "#b59f3b";
 const GREY = "#3A3A3C";
-const LIGHTGREY = "#555";
+const LIGHTGREY = "#3a3a3c";
 
 let choiceWord;
 let lettersColor = new Map();
@@ -135,7 +135,7 @@ function drawRowLetter(row, currentPressedWord) {
     const box = row.children[i];
     if (currentPressedWord[i]) {
       box.innerText = currentPressedWord[i] || "";
-      box.style.borderColor = "white";
+      box.style.borderColor = "#565758";
     } else {
       box.innerText = "";
       box.style.borderColor = LIGHTGREY;
@@ -164,8 +164,22 @@ function handleKey(pressedKey) {
   } else if (/^[a-z]$/.test(pressedKey)) {
     if (currentPressedWord.length === 5) return;
     currentPressedWord += pressedKey;
+    animatePressKey();
   }
   updateGrid();
+}
+
+// 키를 눌렀을 때 애니메이션
+function animatePressKey() {
+  const rowIndex = pressedWords.length;
+  const row = grid.children[rowIndex];
+  const box = row.children[currentPressedWord.length - 1];
+  box.style.animationName = "press";
+  box.style.animationDuration = "0.1s";
+  setTimeout(() => {
+    box.style.animationName = "none";
+    box.style.animationDuration = "none";
+  }, 100);
 }
 
 // 키보드 버튼 배경색 업뎃 로직
@@ -247,7 +261,6 @@ function getBackGroundColor(pressedWord, i) {
 /*
 할일
 
-글자를 입력 할때 윤곽에 바운스 모션
 엔터를 쳤을 때 애니메이션
 
 */
