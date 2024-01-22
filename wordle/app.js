@@ -169,6 +169,15 @@ function handleKey(pressedKey) {
   updateGrid();
 }
 
+// 엔터키를 눌렀을 때 애니메이션
+function animateEnter() {
+  const rowIndex = pressedWords.length - 1;
+  const row = grid.children[rowIndex];
+
+  row.children[0].style.animationName = "enter";
+  row.children[0].style.animationDuration = "2s";
+}
+
 // 키를 눌렀을 때 애니메이션
 function animatePressKey() {
   const rowIndex = pressedWords.length;
@@ -261,6 +270,6 @@ function getBackGroundColor(pressedWord, i) {
 /*
 할일
 
-엔터를 쳤을 때 애니메이션
+모달창 꾸미기
 
 */
