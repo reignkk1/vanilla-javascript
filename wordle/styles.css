@@ -20,9 +20,18 @@ html {
   top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
+}
+
+#help-button {
+  margin-top: 30px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background-color: white;
 }
 
 .row {
@@ -62,9 +71,12 @@ html {
   position: relative;
 }
 
-.front,
 .back {
+  transition: all 1s linear;
+  opacity: 0;
   position: absolute;
+  left: 0;
+  right: 0;
 }
 
 .toggle {
@@ -78,13 +90,58 @@ html {
 
 .modal-inner {
   position: absolute;
-  width: 250px;
-  height: 350px;
-  background-color: black;
+  width: 400px;
+  height: 230px;
+  background-color: #121213;
+  border-radius: 10px;
 }
 
 .modal-inner h1 {
   font-size: 20px;
+}
+
+.modal-inner button {
+  background-color: white;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.modal-inner img {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.modal-help-inner {
+  width: 500px;
+  height: 570px;
+  background-color: #121213;
+  text-align: start;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.modal-help-examples-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #3a3a3c;
+  font-weight: bold;
+  font-size: 23px;
+  margin-right: 5px;
+}
+.modal-help-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
 }
 
 @keyframes press {

@@ -11,9 +11,11 @@
 const grid = document.getElementById("grid");
 const keyboard = document.getElementById("keyboard");
 const modal = document.getElementById("modal");
+const helpButton = document.getElementById("help-button");
 
 // EventListners
 document.addEventListener("keydown", handleKeyDown);
+helpButton.addEventListener("click", createHelpModalInner);
 
 // Functions
 const wordList = ["piano", "apple"];
@@ -37,16 +39,21 @@ drawRandomWord();
 
 // 초기화
 function reset() {
-  const boxes = document.querySelectorAll(".box");
+  const fronts = document.querySelectorAll(".front");
+  const backs = document.querySelectorAll(".back");
   const buttons = document.querySelectorAll(".keyboard-button");
 
   pressedWords = [];
   lettersColor.clear();
   buttons.forEach((button) => (button.style.backgroundColor = "#818384"));
-  boxes.forEach((box) => {
-    box.style.backgroundColor = "black";
-    box.innerText = "";
-    box.style.borderColor = LIGHTGREY;
+  fronts.forEach((front) => {
+    front.style.opacity = "1";
+    front.style.animationName = "none";
+    front.innerText = "";
+  });
+  backs.forEach((back) => {
+    back.style.opacity = "0";
+    back.style.animationName = "none";
   });
 }
 
@@ -99,7 +106,15 @@ function buildGrid() {
     row.className = "row";
     for (let j = 0; j < 5; j++) {
       const box = document.createElement("div");
+      const front = document.createElement("div");
+      const back = document.createElement("div");
+
       box.className = "box";
+      front.className = "front";
+      back.className = "back";
+
+      box.appendChild(front);
+      box.appendChild(back);
       row.appendChild(box);
     }
     grid.appendChild(row);
@@ -120,11 +135,12 @@ function updateGrid() {
 function drawRowWord(row, pressedWord) {
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
+    const back = box.children[1];
     if (pressedWord[i]) {
-      box.innerText = pressedWord[i];
+      back.innerText = pressedWord[i];
     }
-    box.style.backgroundColor = getBackGroundColor(pressedWord, i);
-    box.style.borderColor = "black";
+    back.style.backgroundColor = getBackGroundColor(pressedWord, i);
+    back.style.borderColor = "black";
   }
 }
 
@@ -133,12 +149,17 @@ function drawRowLetter(row, currentPressedWord) {
   if (!row) return;
   for (let i = 0; i < 5; i++) {
     const box = row.children[i];
+    const front = box.children[0];
+    const back = box.children[1];
     if (currentPressedWord[i]) {
-      box.innerText = currentPressedWord[i] || "";
-      box.style.borderColor = "#565758";
+      front.innerText = currentPressedWord[i] || "";
+      back.innerText = currentPressedWord[i] || "";
+      front.style.borderColor = "#565758";
     } else {
-      box.innerText = "";
-      box.style.borderColor = LIGHTGREY;
+      front.innerText = "";
+      back.innerText = "";
+      front.style.borderColor = LIGHTGREY;
+      back.style.borderColor = LIGHTGREY;
     }
   }
 }
@@ -156,6 +177,7 @@ function handleKey(pressedKey) {
     if (currentPressedWord.length < 5) return;
     pressedWords.push(currentPressedWord);
     currentPressedWord = "";
+    animateEnter();
     updateKeyBoardColor();
     updateGrid();
     return drawModal();
@@ -171,11 +193,20 @@ function handleKey(pressedKey) {
 
 // 엔터키를 눌렀을 때 애니메이션
 function animateEnter() {
-  const rowIndex = pressedWords.length - 1;
-  const row = grid.children[rowIndex];
+  const row = grid.children[pressedWords.length - 1];
 
-  row.children[0].style.animationName = "enter";
-  row.children[0].style.animationDuration = "2s";
+  for (let i = 0; i < 5; i++) {
+    const front = row.children[i].children[0];
+    const back = row.children[i].children[1];
+
+    front.style.opacity = "0";
+    back.style.opacity = "1";
+
+    back.style.animationName = "enter";
+    back.style.animationDuration = "1s";
+    front.style.animationName = "enter";
+    front.style.animationDuration = "1s";
+  }
 }
 
 // 키를 눌렀을 때 애니메이션
@@ -211,10 +242,14 @@ function updateKeyBoardColor() {
 function drawModal() {
   const success = pressedWords[pressedWords.length - 1] === choiceWord;
   if (success) {
-    createModalInner("정답! 축하드립니다!");
-    drawRandomWord();
+    setTimeout(() => {
+      createModalInner("정답! 축하드립니다!");
+      drawRandomWord();
+    }, 1000);
   } else if (pressedWords.length === 6) {
-    createModalInner("실패! 다시 도전해주세요!");
+    setTimeout(() => {
+      createModalInner("실패 ㅠㅠ 다시 도전해주세요 ㅠㅠ");
+    }, 1000);
   }
 }
 
@@ -224,7 +259,16 @@ function createModalInner(title) {
   const div = document.createElement("div");
   const h1 = document.createElement("h1");
   const button = document.createElement("button");
+  const imgBox = document.createElement("div");
+  const img = document.createElement("img");
 
+  if (title.includes("정답")) {
+    img.src = "https://gifburg.com/images/gifs/fireworks/gifs/0004.gif";
+  } else {
+    img.src =
+      "https://mblogthumb-phinf.pstatic.net/MjAxODA2MjZfMTAy/MDAxNTI5OTgxNzg2MTc1.8nHsgR8Xf4DxtWYsEeVrUgA26IxASLUmikQW8QI07JMg.k0v3yHc9TpLhYLbd0ObCepd45nnjLp_XHyueDTVa3w8g.GIF.viewhee/rain_%286%29.gif?type=w800";
+  }
+  img.style.background = "none";
   modal.style.display = "flex";
   container.className = "modal-inner";
   h1.innerText = title;
@@ -235,11 +279,109 @@ function createModalInner(title) {
     modal.removeChild(container);
   };
 
+  imgBox.appendChild(img);
   div.appendChild(h1);
+  div.appendChild(imgBox);
   div.appendChild(button);
 
   container.appendChild(div);
   modal.appendChild(container);
+}
+
+// How To Play 모달 inner 생성
+function createHelpModalInner() {
+  const container = document.createElement("div");
+  container.className = "modal-help-inner";
+
+  const topDiv = document.createElement("div");
+  const closeButton = document.createElement("button");
+  topDiv.style.display = "flex";
+  topDiv.style.justifyContent = "end";
+
+  closeButton.className = "modal-help-button";
+  closeButton.innerText = "X";
+  closeButton.onclick = () => {
+    modal.style.display = "none";
+    modal.removeChild(container);
+  };
+  topDiv.appendChild(closeButton);
+
+  const middleDiv = document.createElement("div");
+  const h1 = document.createElement("h1");
+  const p = document.createElement("p");
+  const ul = document.createElement("ul");
+  const firstLi = document.createElement("li");
+  const secondLi = document.createElement("li");
+
+  firstLi.style.marginBottom = "5px";
+  h1.innerText = "How To Play";
+  p.innerText = "6번의 시도로 단어를 맞춰보세요!";
+  firstLi.innerText = "각 5개의 영어 스펠링이어야 합니다.";
+  secondLi.innerText =
+    "박스의 색상이 변경되어 단어에 얼마나 근접했는지 보여줍니다.";
+
+  ul.appendChild(firstLi);
+  ul.appendChild(secondLi);
+
+  middleDiv.appendChild(h1);
+  middleDiv.appendChild(p);
+  middleDiv.appendChild(ul);
+
+  const bottomDiv = document.createElement("div");
+  const h2 = document.createElement("h2");
+  h2.innerText = "Examples";
+
+  const exampleContainer = document.createElement("div");
+  exampleContainer.appendChild(
+    createExample(
+      "WEARY",
+      "W가 단어에 포함되어 있고 올바른 위치에 있습니다.",
+      0,
+      GREEN
+    )
+  );
+  exampleContainer.appendChild(
+    createExample(
+      "VALUE",
+      "A가 단어에 포함되어 있고 올바르지 않은 위치에 있습니다.",
+      1,
+      YELLOW
+    )
+  );
+  exampleContainer.appendChild(
+    createExample("WATER", "T가 단어에 포함되어 있지 않습니다.", 2, GREY)
+  );
+
+  bottomDiv.appendChild(h2);
+  bottomDiv.appendChild(exampleContainer);
+
+  container.appendChild(topDiv);
+  container.appendChild(middleDiv);
+  container.appendChild(bottomDiv);
+
+  modal.appendChild(container);
+  modal.style.display = "flex";
+}
+
+// example template
+function createExample(letters, explanation, number, color) {
+  const container = document.createElement("div");
+  const boxs = document.createElement("div");
+  boxs.style.display = "flex";
+
+  const p = document.createElement("p");
+  p.innerText = explanation;
+
+  for (let i = 0; i < 5; i++) {
+    const div = document.createElement("div");
+    div.className = "modal-help-examples-box ";
+    div.innerText = letters[i];
+    boxs.appendChild(div);
+  }
+  boxs.children[number].style.backgroundColor = color;
+  container.appendChild(boxs);
+  container.appendChild(p);
+  return container;
 }
 
 function getBetterColor(prev, cur) {
@@ -270,6 +412,6 @@ function getBackGroundColor(pressedWord, i) {
 /*
 할일
 
-모달창 꾸미기
+모달창 꾸미기, How to Play 모달창 만들기
 
 */
