@@ -204,8 +204,11 @@ function animateEnter() {
 
     back.style.animationName = "enter";
     back.style.animationDuration = "1s";
+    back.style.animationDelay = `${i * 300}ms`;
+
     front.style.animationName = "enter";
     front.style.animationDuration = "1s";
+    front.style.animationDelay = `${i * 300}ms`;
   }
 }
 
@@ -245,11 +248,11 @@ function drawModal() {
     setTimeout(() => {
       createModalInner("정답! 축하드립니다!");
       drawRandomWord();
-    }, 1000);
+    }, 2500);
   } else if (pressedWords.length === 6) {
     setTimeout(() => {
       createModalInner("실패 ㅠㅠ 다시 도전해주세요 ㅠㅠ");
-    }, 1000);
+    }, 2000);
   }
 }
 
